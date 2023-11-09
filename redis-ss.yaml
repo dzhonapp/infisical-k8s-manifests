@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: infisical-redis
+  namespace: infiscal
+spec:
+  replicas: 1  
+  selector:
+    matchLabels:
+      app: infisical-redis
+  serviceName: infisical-redis-service
+  template:
+    metadata:
+      labels:
+        app: infisical-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: infisical-redis
+  ports:
+    - protocol: TCP
+      port: 6379 

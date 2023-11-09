@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infisical-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: infisical-backend
+          image: infisical/backend
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: SITE_URL
+              value: http://localhost:8080
+            - name: REDIS_URL
+              value: "redis://redis:6379"
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: mongo_url
+            - name: ENCRYPTION_KEY
+              value: "ENCRYPTION_KEY=6c1fe4e407b8911c104518103505b218"
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: username
+            - name: MONGO_INITDB_ROOT_PASSWORD 
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: password
+          ports:
+            - containerPort: 4000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 4000

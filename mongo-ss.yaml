@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: infisical-mongo
+  namespace: infiscal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infisical-mongo
+  serviceName: infisical-mongo-service
+  template:
+    metadata:
+      labels:
+        app: infisical-mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secrets
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secrets
+              key: password
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-data-infisical-mongo-0
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: local-storage
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  selector:
+    app: infisical-mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+
+
+      

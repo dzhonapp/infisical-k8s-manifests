@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infisical-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infisical-nginx
+  template:
+    metadata:
+      labels:
+        app: infisical-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+        resources:
+          limits:
+            cpu: "0.5"    
+            memory: "512Mi"  
+          requests:
+            cpu: "0.1"    
+            memory: "256Mi"  
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: frontend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: infisical-nginx-service
+  namespace: infiscal
+spec:
+  selector:
+    app: infisical-nginx
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
