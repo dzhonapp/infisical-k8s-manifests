@@ -5,7 +5,6 @@ metadata:
   name: frontend-config
 data:
   default.conf: |
-    # Your Nginx configuration goes here
     server {
       listen 80;
       server_name example.com;
